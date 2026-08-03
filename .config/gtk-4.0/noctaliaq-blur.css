@@ -1,8 +1,20 @@
-/* Transparencia para que el blur global de niri se vea a través de GTK */
-@define-color window_bg_color alpha(@window_bg_color, 0.85);
-@define-color view_bg_color alpha(@view_bg_color, 0.85);
-@define-color headerbar_bg_color alpha(@headerbar_bg_color, 0.85);
-@define-color popover_bg_color alpha(@popover_bg_color, 0.92);
-@define-color card_bg_color alpha(@card_bg_color, 0.9);
-@define-color dialog_bg_color alpha(@dialog_bg_color, 0.9);
-@define-color sidebar_bg_color alpha(@sidebar_bg_color, 0.88);
+/* Transparencia para que el blur global de niri se vea a través de GTK.
+   Selectores de widget directos (no redefinir @define-color: causa auto-referencia). */
+window.background, .background {
+    background-color: alpha(@window_bg_color, 0.85);
+}
+.view {
+    background-color: alpha(@view_bg_color, 0.85);
+}
+headerbar {
+    background-color: alpha(@headerbar_bg_color, 0.85);
+}
+popover, popover.background, popover contents {
+    background-color: alpha(@popover_bg_color, 0.92);
+}
+.sidebar, list.sidebar, placessidebar {
+    background-color: alpha(@sidebar_bg_color, 0.88);
+}
+dialog.background {
+    background-color: alpha(@dialog_bg_color, 0.9);
+}
