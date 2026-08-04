@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=NoctaliaQ: Recolor Folders
+Comment=Regenera los iconos de carpeta de Papirus con la paleta activa
+Exec=kitty --hold -e /home/kyu/NoctaliaQ/scripts/papirus-recolor.sh
+Icon=preferences-desktop-theme
+Terminal=false
+Categories=Utility;

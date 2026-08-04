@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=NoctaliaQ: Recolor Cursor
+Comment=Regenera el cursor Bibata con la paleta activa
+Exec=kitty --hold -e /home/kyu/NoctaliaQ/scripts/cursor-recolor.sh
+Icon=preferences-desktop-theme
+Terminal=false
+Categories=Utility;

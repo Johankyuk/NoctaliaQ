@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 set -uo pipefail
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$DIR/lib-palette.sh"
-extract_palette || exit 1
 
 SRC_BASE="/usr/share/icons/Papirus"
 OUT_BASE="$HOME/.local/share/icons/Papirus-Dark-NoctaliaQ"
-[ -d "$SRC_BASE" ] || { echo "no encontre $SRC_BASE"; exit 1; }
+CSS="$HOME/.config/gtk-4.0/noctalia.css"
+
+[ -f "$CSS" ] || { echo "no encontré $CSS"; exit 1; }
+[ -d "$SRC_BASE" ] || { echo "no encontré $SRC_BASE"; exit 1; }
+
+ACCENT=$(grep -oP '(?<=@define-color accent_color )#[0-9a-fA-F]{6}' "$CSS" | head -1)
+WINDOW_BG=$(grep -oP '(?<=@define-color window_bg_color )#[0-9a-fA-F]{6}' "$CSS" | head -1)
+VIEW_FG=$(grep -oP '(?<=@define-color view_fg_color )#[0-9a-fA-F]{6}' "$CSS" | head -1)
+
+for v in ACCENT WINDOW_BG VIEW_FG; do
+    [ -n "${!v}" ] || { echo "no pude extraer $v de noctalia.css"; exit 1; }
+done
+
+SECONDARY=$(python3 -c "
+h='$ACCENT'.lstrip('#')
+r,g,b=(int(h[i:i+2],16) for i in (0,2,4))
+print(f'#{int(r*0.75):02x}{int(g*0.75):02x}{int(b*0.75):02x}')
+")
+
+echo "Paleta detectada: primary=$ACCENT secondary=$SECONDARY symbol=$WINDOW_BG paper=$VIEW_FG"
 
 OLD_COLORS="#5294e2 #4877b1 #1d344f #e4e4e4"
 NEW_COLORS="$ACCENT $SECONDARY $WINDOW_BG $VIEW_FG"
@@ -36,7 +52,7 @@ for s in 16x16 22x22 24x24 32x32 48x48 64x64; do
     [ -e "$out_dir/folder-public.svg" ] && cp -f "$out_dir/folder-public.svg" "$out_dir/folder-publicshare.svg"
 done
 
-cat > "$OUT_BASE/index.theme" <<THEMEEOF
+cat > "$OUT_BASE/index.theme" <<EOF
 [Icon Theme]
 Name=Papirus-Dark-NoctaliaQ
 Comment=Papirus-Dark con folders recoloreados a la paleta activa de NoctaliaQ
@@ -72,7 +88,7 @@ Type=Fixed
 Size=64
 Context=Places
 Type=Fixed
-THEMEEOF
+EOF
 
 gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark-NoctaliaQ"
-echo "listo: Papirus-Dark-NoctaliaQ regenerado"
+echo "listo: Papirus-Dark-NoctaliaQ instalado y activo"
