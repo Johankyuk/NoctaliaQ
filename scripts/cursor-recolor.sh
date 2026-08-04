@@ -19,6 +19,7 @@ if [ ! -d "$CACHE/.git" ]; then
 fi
 cd "$CACHE" || exit 1
 git pull --ff-only -q || true
+rm -rf bitmaps themes
 
 rm -rf "bitmaps/$NAME" "themes/$NAME"
 PUPPETEER_SKIP_DOWNLOAD=1 npx --yes cbmp -d 'svg/modern' -o "bitmaps/$NAME" \
