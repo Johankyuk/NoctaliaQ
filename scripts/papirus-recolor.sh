@@ -47,6 +47,9 @@ for s in 16x16 22x22 24x24 32x32 48x48 64x64; do
         cp -f "$f" "$out_dir/$newbase"
         recolor "$OLD_COLORS" "$NEW_COLORS" "$out_dir/$newbase"
     done < <(find "$src_dir" -regextype posix-extended -regex ".*/(folder|user)-blue([-.].*)?\.svg" -print0)
+
+    [ -e "$out_dir/folder-pictures.svg" ] && cp -f "$out_dir/folder-pictures.svg" "$out_dir/folder-images.svg"
+    [ -e "$out_dir/folder-public.svg" ] && cp -f "$out_dir/folder-public.svg" "$out_dir/folder-publicshare.svg"
 done
 
 cat > "$OUT_BASE/index.theme" <<EOF
