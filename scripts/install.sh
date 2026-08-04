@@ -65,7 +65,7 @@ git -C "$TARGET" remote set-url origin "$REPO_SSH" 2>/dev/null || true
 
 ts=$(date +%s)
 
-for d in niri noctalia gtk-3.0 gtk-4.0; do
+for d in niri noctalia gtk-3.0 gtk-4.0 fastfetch; do
 
     live="$HOME/.config/$d"
 
