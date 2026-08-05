@@ -7,3 +7,7 @@
     mode "2560x1440@359.979" // Set resolution and refresh rate
     scale 1 // No scaling (use 2 for HiDPI)
 }
+output "eDP-1" {
+    mode "1920x1200@144.001" // Panel interno, corrige caída a 60Hz tras toggle de Ultimate/MUX
+    scale 1
+}
