@@ -8,12 +8,12 @@
         QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
         XDG_CURRENT_DESKTOP "niri"
         XDG_SESSION_TYPE "wayland"
-        XCURSOR_THEME "Bibata-NoctaliaQ"
+        XCURSOR_THEME "Bibata-NoctaliaQ-cd217bff"
         XCURSOR_SIZE "30"
     }
 
     cursor {
-        xcursor-theme "Bibata-NoctaliaQ"
+        xcursor-theme "Bibata-NoctaliaQ-cd217bff"
         xcursor-size 30
     }
 

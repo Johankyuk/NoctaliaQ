@@ -3,7 +3,7 @@
     "logo": {
         "type": "file",
         "source": "~/.config/fastfetch/noctaliaq.txt",
-        "color": { "1": "magenta" },
+        "color": { "1": "#e7ba64" },
         "padding": { "top": 1, "right": 2 }
     },
     "display": {
