@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=NoctaliaQ: Recolor Todo
-Comment=Regenera folders y cursor juntos con la paleta activa
-Exec=kitty --hold -e /home/kyu/NoctaliaQ/scripts/recolor-all.sh
-Icon=preferences-desktop-theme
-Terminal=false
-Categories=Utility;

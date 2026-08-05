@@ -103,17 +103,19 @@ command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$
 
 
 
-echo "-> Instalando dependencias de los scripts de recolor (pide sudo)..."
+echo "-> Instalando kitty, thunar, fuente y papirus-icon-theme (pide sudo)..."
 
-sudo pacman -S --needed --noconfirm nodejs npm python-pip papirus-icon-theme
-
-pip install --user --break-system-packages -q "clickgen>=2.2.5"
-
-export PATH="$HOME/.local/bin:$PATH"
+sudo pacman -S --needed --noconfirm kitty thunar ttf-jetbrains-mono-nerd papirus-icon-theme
 
 
 
-echo "-> Corriendo el primer recolor (cursor + folders con la paleta actual)..."
+echo "-> Instalando cursor Bibata-Modern-Classic (estatico, una sola vez)..."
+
+"$TARGET/scripts/install-cursor.sh" || echo "AVISO: no se pudo instalar el cursor — revisa conexion a github.com."
+
+
+
+echo "-> Corriendo el primer recolor de folders (con la paleta actual)..."
 
 "$TARGET/scripts/recolor-all.sh" || echo "AVISO: el recolor fallo — revisa que ~/.config/gtk-4.0/noctalia.css exista (Noctalia debe haber corrido al menos una vez)."
 
