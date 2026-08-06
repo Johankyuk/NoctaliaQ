@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
-# horus-power — energía + ventiladores + GPU (Hybrid, laptop). Horus / NixOS.
+# noctaliaq-power — energía + ventiladores + GPU (Hybrid, laptop). Horus/NixOS (portado a NoctaliaQ, ver README de esta carpeta).
 #
 # MODELO (todo gira en torno al PERFIL, sin comandos por juego):
 #   La base es Hybrid. En BATERÍA la dGPU se autosuspende (D3cold, ~0W) cuando nada
 #   la usa; en AC NO llega a dormir: queda en idle P8 (~2W). Quién usa la dGPU lo
-#   deciden horus-gpu (por app) y horus-gpu-watch (env de sesión por fuente).
+#   deciden noctaliaq-gpu (por app) y noctaliaq-gpu-watch (env de sesión por fuente).
 #
 #   La configuración base es DECLARATIVA en horus-nix; no hay subcomando "setup":
 #     • autosuspensión dGPU    -> hardware.nvidia.powerManagement.finegrained
 #     • curvas quiet/balanced  -> modules/fan-curves.nix
-#     • curva performance      -> horus-gpu-watch (alta en AC, = balanced en batería)
+#     • curva performance      -> noctaliaq-gpu-watch (alta en AC, = balanced en batería)
 #     • comando de offload     -> nvidia-offload (prime.offload.enableOffloadCmd)
 #
-#   horus-power               wizard interactivo (sin argumentos).
-#   horus-power silencio      perfil power-saver (dGPU dormida en batería).
-#   horus-power equilibrado   perfil balanced.
-#   horus-power rendimiento   perfil performance.
-#   horus-power gpu-off       apaga la dGPU por firmware (requiere reinicio).
-#   horus-power gpu-on        la vuelve a encender (requiere reinicio).
-#   horus-power noheat [off]  ventiladores 100% (solo rendimiento + AC).
-#   horus-power --actual      estado (una línea por dato, para el launcher).
+#   noctaliaq-power               wizard interactivo (sin argumentos).
+#   noctaliaq-power silencio      perfil power-saver (dGPU dormida en batería).
+#   noctaliaq-power equilibrado   perfil balanced.
+#   noctaliaq-power rendimiento   perfil performance.
+#   noctaliaq-power gpu-off       apaga la dGPU por firmware (requiere reinicio).
+#   noctaliaq-power gpu-on        la vuelve a encender (requiere reinicio).
+#   noctaliaq-power noheat [off]  ventiladores 100% (solo rendimiento + AC).
+#   noctaliaq-power --actual      estado (una línea por dato, para el launcher).
 set -uo pipefail
 P='\033[0;35m'; G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; N='\033[0m'
 C='\033[0;36m'; D='\033[2m'
@@ -88,7 +88,7 @@ _ofrecer_reboot(){
 }
 
 _wizard(){
-    [ -t 0 ] || { echo "uso: horus-power [silencio|equilibrado|rendimiento|gpu-off|gpu-on|noheat [off]|--actual]"; return 0; }
+    [ -t 0 ] || { echo "uso: noctaliaq-power [silencio|equilibrado|rendimiento|gpu-off|gpu-on|noheat [off]|--actual]"; return 0; }
     local opt modo perfil ac g1 g2 p1 p2 p3
     while true; do
         modo=$(_modo_actual); pend=$(_modo_pendiente)
@@ -117,7 +117,7 @@ _wizard(){
         echo ""
         echo -e "  ${P}Ventiladores${N}"
         echo -e "     ${C}6${N}  Al 100%      ${D}solo en rendimiento + AC${N}"
-        echo -e "     ${C}7${N}  Restaurar    ${D}devuelve la curva a horus-gpu-watch${N}"
+        echo -e "     ${C}7${N}  Restaurar    ${D}devuelve la curva a noctaliaq-gpu-watch${N}"
         echo ""
         echo -e "     ${C}0${N}  Salir"
         echo ""
@@ -139,9 +139,9 @@ _wizard(){
                elif ! _en_ac; then err "noheat solo con cargador conectado."
                else _curva performance "$CURVA_MAX" && ok "Ventiladores al 100%."; fi
                _pausa ;;
-            7) systemctl --user restart horus-gpu-watch 2>/dev/null \
-                 && ok "Curva restaurada por horus-gpu-watch." \
-                 || err "No pude reiniciar horus-gpu-watch."
+            7) systemctl --user restart noctaliaq-gpu-watch 2>/dev/null \
+                 && ok "Curva restaurada por noctaliaq-gpu-watch." \
+                 || err "No pude reiniciar noctaliaq-gpu-watch."
                _pausa ;;
             0|q|Q) printf '\033[2J\033[H'; return 0 ;;
             *) ;;
@@ -157,15 +157,15 @@ case "${1:-}" in
     gpu-on)              _dgpu_set 0 ;;
     noheat)
         if [ "${2:-on}" = "off" ]; then
-            systemctl --user restart horus-gpu-watch 2>/dev/null \
-                && ok "Curva de rendimiento restaurada por horus-gpu-watch." \
-                || err "No pude reiniciar horus-gpu-watch."
+            systemctl --user restart noctaliaq-gpu-watch 2>/dev/null \
+                && ok "Curva de rendimiento restaurada por noctaliaq-gpu-watch." \
+                || err "No pude reiniciar noctaliaq-gpu-watch."
             exit 0
         fi
         prof=$(cat /sys/firmware/acpi/platform_profile 2>/dev/null)
         [ "$prof" = performance ] || { err "noheat solo en rendimiento (estás en '${prof:-?}')."; exit 1; }
         _en_ac || { err "noheat solo con cargador conectado."; exit 1; }
-        _curva performance "$CURVA_MAX" && ok "Ventiladores al 100%. Restaura: horus-power noheat off"
+        _curva performance "$CURVA_MAX" && ok "Ventiladores al 100%. Restaura: noctaliaq-power noheat off"
         ;;
     --actual|actual)
         _act=$(_modo_actual); _pend=$(_modo_pendiente)
@@ -175,7 +175,7 @@ case "${1:-}" in
         echo "dGPU:       $(_estado_dgpu)"
         _en_ac && echo "AC:         conectado" || echo "AC:         batería"
         ;;
-    --help|-h) echo "uso: horus-power [silencio|equilibrado|rendimiento|gpu-off|gpu-on|noheat [off]|--actual]" ;;
+    --help|-h) echo "uso: noctaliaq-power [silencio|equilibrado|rendimiento|gpu-off|gpu-on|noheat [off]|--actual]" ;;
     "") _wizard ;;
-    *) err "opción desconocida: $1"; echo "uso: horus-power [silencio|equilibrado|rendimiento|gpu-off|gpu-on|noheat [off]|--actual]"; exit 1 ;;
+    *) err "opción desconocida: $1"; echo "uso: noctaliaq-power [silencio|equilibrado|rendimiento|gpu-off|gpu-on|noheat [off]|--actual]"; exit 1 ;;
 esac

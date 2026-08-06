@@ -6,7 +6,7 @@ Wants=asusd.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/local/bin/horus-fan-curves-apply
+ExecStart=/usr/local/bin/noctaliaq-fan-curves-apply
 
 [Install]
 WantedBy=multi-user.target

@@ -1,1 +1,0 @@
-__USER__ ALL=(root) NOPASSWD: /usr/local/bin/horus-cpu-cap *

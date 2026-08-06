@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# horus-gpu-watch — vigilante de perfil: en rendimiento+AC toda app NUEVA nace
-# en la dGPU (env de sesión PRIME); fuera de eso, iGPU por default y horus-gpu
+# noctaliaq-gpu-watch — vigilante de perfil: en rendimiento+AC toda app NUEVA nace
+# en la dGPU (env de sesión PRIME); fuera de eso, iGPU por default y noctaliaq-gpu
 # decide por app. Las apps ya corriendo no migran (límite de híbrido).
 set -u
 VARS=(__NV_PRIME_RENDER_OFFLOAD __GLX_VENDOR_LIBRARY_NAME __VK_LAYER_NV_optimus DRI_PRIME)
@@ -20,7 +20,7 @@ while true; do
       if [ "$f" = "ac" ]; then powerprofilesctl set balanced
       else powerprofilesctl set power-saver; fi
     fi
-    sudo -n /usr/local/bin/horus-cpu-cap "$f" >/dev/null 2>&1 || true
+    sudo -n /usr/local/bin/noctaliaq-cpu-cap "$f" >/dev/null 2>&1 || true
     if command -v asusctl >/dev/null; then
       if [ "$f" = "ac" ]; then
         asusctl fan-curve --mod-profile performance --fan cpu --data "$PERF_AC_CPU" >/dev/null 2>&1 || true

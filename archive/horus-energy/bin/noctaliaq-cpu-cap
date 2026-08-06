@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# horus-cpu-cap — envelope del CPU por fuente.
+# noctaliaq-cpu-cap — envelope del CPU por fuente.
 # bat: cap 2.5GHz (~15-20W paquete, evita apagones por pico).
 # ac: frecuencia completa.
 # El boost lo gestiona power-profiles-daemon por perfil; NO tocarlo aqui (conflicto EINVAL).
@@ -16,5 +16,5 @@ case "${1:-}" in
       cat "$p/cpuinfo_max_freq" > "$p/scaling_max_freq"
     done
     ;;
-  *) echo "uso: horus-cpu-cap ac|bat" >&2; exit 1 ;;
+  *) echo "uso: noctaliaq-cpu-cap ac|bat" >&2; exit 1 ;;
 esac

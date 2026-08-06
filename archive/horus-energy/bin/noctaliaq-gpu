@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# horus-gpu — lanzador consciente del PERFIL y del CARGADOR. Prefijo global del launcher
+# noctaliaq-gpu — lanzador consciente del PERFIL y del CARGADOR. Prefijo global del launcher
 # de Noctalia; sirve para cualquier app (juegos, render, diseño).
 #   silencio (quiet)             -> iGPU exclusivo.
 #   EN BATERÍA (cualquier perfil) -> iGPU exclusivo (no drena la dGPU).
 #   equilibrado/rendimiento + AC  -> ofrece la dGPU (offload).
-[ "$(basename "${1:-}")" = horus-gpu ] && shift
+[ "$(basename "${1:-}")" = noctaliaq-gpu ] && shift
 [ $# -eq 0 ] && exit 0
 
 _en_ac(){ for p in /sys/class/power_supply/*/online; do

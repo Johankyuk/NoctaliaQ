@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# horus-gpu-wrap-desktop — antepone horus-gpu al Exec= de un .desktop de Flatpak,
+# noctaliaq-gpu-wrap-desktop — antepone noctaliaq-gpu al Exec= de un .desktop de Flatpak,
 # via override local en ~/.local/share/applications (sobrevive updates del flatpak,
 # tiene prioridad sobre el .desktop de /var/lib/flatpak/exports). Necesario porque
-# Flatpak no hereda el entorno PRIME que fija horus-gpu-watch a nivel de sesion.
+# Flatpak no hereda el entorno PRIME que fija noctaliaq-gpu-watch a nivel de sesion.
 set -uo pipefail
-APPID="${1:?uso: horus-gpu-wrap-desktop <flatpak-app-id>}"
+APPID="${1:?uso: noctaliaq-gpu-wrap-desktop <flatpak-app-id>}"
 
 SRC=""
 for d in /var/lib/flatpak/exports/share/applications \
@@ -15,7 +15,7 @@ done
 
 DEST="$HOME/.local/share/applications/$APPID.desktop"
 mkdir -p "$(dirname "$DEST")"
-sed 's|^Exec=|Exec=horus-gpu |' "$SRC" > "$DEST"
+sed 's|^Exec=|Exec=noctaliaq-gpu |' "$SRC" > "$DEST"
 
 command -v update-desktop-database >/dev/null 2>&1 \
     && update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1

@@ -1,11 +1,18 @@
 # NoctaliaQ
 
-Addon sobre una instalación existente de niri + Noctalia. No quita ni reemplaza nada de Noctalia — agrega encima: cursor Bibata negro, recolor dinámico de folders, transparencia/blur en apps GTK, terminal (kitty) con blur, branding en fastfetch que sigue el acento activo, y un fix para que el panel interno no pierda su refresh rate nativo tras un toggle de MUX (Ultimate/Híbrido).
+Addon sobre una instalación existente de niri + Noctalia (Q = kyu — mi rice de Noctalia). No quita ni reemplaza nada de Noctalia — agrega encima: cursor Bibata negro, recolor dinámico de folders + teclado, transparencia/blur en apps GTK, terminal (kitty) con blur, branding en fastfetch que sigue el acento activo, un fix para que el panel interno no pierda su refresh rate nativo tras un toggle de MUX, y wizards propios (sin GUI de terceros) para modo GPU, límite de batería y retroiluminación del teclado.
+
+**Filosofía: cero asusd.** Desde 2026-08-06, NoctaliaQ no depende de
+`asusd`/`asusctl`/`rog-control-center` para nada — todo (GPU, batería,
+teclado) se controla por escritura directa a sysfs. El motivo y el detalle
+completo de la migración están en `archive/README.md`.
 
 ## Requisitos
 
 - niri instalado y corriendo.
 - Noctalia instalado y corriendo al menos una vez (necesita haber generado `~/.config/gtk-4.0/noctalia.css`).
+- `inotify-tools` (para el recolor automático). El instalador no lo mete por vos si no está — `sudo pacman -S inotify-tools`.
+- **No** hace falta `asusd`/`asusctl` para nada de lo activo en `scripts/`. Si los tenés instalados por otra razón, no estorban, pero podés desinstalarlos (ver el final de `scripts/install.sh`).
 
 ## Instalación
 
@@ -17,10 +24,24 @@ Esto:
 
 1. Clona (o actualiza) este repo en `~/NoctaliaQ`.
 2. Respalda y symlinkea `~/.config/{niri,noctalia,gtk-3.0,gtk-4.0,fastfetch}` hacia el repo.
-3. Instala la entrada del lanzador de Noctalia (recolor de folders).
+3. Instala las entradas del lanzador de Noctalia (GPU, batería, teclado, recolor manual).
 4. Instala `kitty`, `thunar`, la fuente y `papirus-icon-theme` vía pacman.
 5. Instala el cursor Bibata-Modern-Classic (una sola vez, ver sección Cursor).
-6. Corre un primer recolor de folders con la paleta activa.
+6. Instala las reglas udev de batería/teclado (pide sudo) y avisa si tu usuario no está en el grupo `video`.
+7. Fija el límite de batería en 80% por defecto (cambialo luego desde el wizard).
+8. Habilita los servicios `--user` de recolor automático y de re-aplicar el teclado al iniciar sesión.
+9. Corre un primer recolor (folders + teclado) con la paleta activa.
+
+## Features
+
+- **NoctaliaQ: GPU** — `scripts/noctaliaq-gpu.sh` — modo iGPU / Híbrida / Ultimate, sysfs directo, sin fan-curves ni perfiles de rendimiento (fuera de alcance a propósito). Requiere reinicio para aplicar.
+- **NoctaliaQ: Límite de Batería** — `scripts/noctaliaq-battery.sh` — límite de carga configurable (default 80%), reforzado por udev en cada evento de batería, sin asusd de por medio.
+- **NoctaliaQ: Teclado** — `scripts/noctaliaq-keyboard.sh` — brillo + color sólido (sin efectos todavía) siguiendo el accent activo, sysfs directo. `--diag` si tu equipo no responde igual.
+- **Recolor universal (folders + teclado)** — automático en segundo plano al cambiar la paleta (`noctaliaq-recolor-watch.service`), sin terminal visible. `NoctaliaQ: Recolor Folders (manual)` queda como fallback.
+- Cursor Bibata-Modern-Classic (estático, no sigue la paleta — decisión a propósito).
+- Thunar + blur, terminal (kitty) con blur, ASCII + fastfetch minimalista con su propio blur.
+
+Todos los wizards son ejecutables directo en terminal (con menú interactivo) o desde el lanzador de Noctalia (`NoctaliaQ: <feature>`), y también aceptan subcomandos no interactivos — corré cualquiera con `--help`.
 
 ## No es un color fijo (con una excepción a propósito: el cursor)
 
@@ -32,16 +53,18 @@ Folders (Papirus) y el logo de fastfetch siguen la paleta que Noctalia genera a 
 
 Esto reemplaza un enfoque anterior con recolor dinámico (clickgen + build por paleta); si preferís volver a un cursor que siga el acento, esa lógica sigue disponible en el historial de git (`git log -- scripts/cursor-recolor.sh`), pero no se usa por defecto.
 
-## Recolor dinámico (folders)
+## Recolor dinámico (folders + teclado)
 
-Papirus (folders de Thunar) lee el accent color activo de Noctalia (`~/.config/gtk-4.0/noctalia.css`) al momento de correr, no un hex fijo. Después de cambiar de wallpaper/paleta:
+Papirus (folders de Thunar) y el color del teclado leen el accent activo de Noctalia (`~/.config/gtk-4.0/noctalia.css`) al momento de correr, no un hex fijo. Esto ahora pasa **solo**: `noctaliaq-recolor-watch.service` vigila ese archivo con `inotifywait` y llama a `recolor-all.sh` cada vez que cambia — no hace falta correr nada a mano, y no abre ninguna terminal (a diferencia del launcher manual anterior, que se veía raro al abrir kitty solo para eso).
+
+Si por lo que sea el watcher no está corriendo (`systemctl --user status noctaliaq-recolor-watch`), podés forzarlo:
 
 ```bash
-~/NoctaliaQ/scripts/recolor-all.sh        # folders (wrapper, por si se suma algo mas adelante)
-~/NoctaliaQ/scripts/papirus-recolor.sh    # lo mismo, directo
+~/NoctaliaQ/scripts/recolor-all.sh        # folders + teclado
+~/NoctaliaQ/scripts/papirus-recolor.sh    # solo folders
 ```
 
-También disponible desde el lanzador de Noctalia ("NoctaliaQ: Recolor Folders").
+También disponible como fallback manual desde el lanzador de Noctalia ("NoctaliaQ: Recolor Folders (manual)").
 
 El tema de kitty (`~/.config/kitty/themes/noctalia.conf`) ya lo regenera Noctalia solo, sin scripts nuestros — NoctaliaQ solo le agrega opacidad dinámica (`background_opacity`) y fuente (JetBrainsMono Nerd Font) encima.
 
@@ -59,20 +82,24 @@ En equipos con MUX (toggle Ultimate/Híbrido vía rog-control-center o `asusctl`
 
 `refresh-lock/` corrige esto sin asumir marca, modelo ni resolución de ningún equipo: le pregunta a niri por IPC cuál es el panel interno y cuál es su modo de mayor resolución+refresh, y lo reaplica si hace falta. Corre solo, enganchado en `cfg/autostart.kdl`. Ver `refresh-lock/README.md` para el detalle.
 
-## asusd-fixes / energy
+## archive/ (histórico, no se instala)
 
-Fixes puntuales de asusd/asusctl/rog-control-center (`asusd-fixes/`) y el módulo de fan-curves/PRIME portado de horus-nix, actualmente en pausa (`energy/`) — ver el README de cada carpeta.
+Todo lo que dependía de asusd (fan-curves/PRIME portado de horus-nix, y los
+fixes puntuales de asusd/rog-control-center) vive ahora en `archive/`, sin
+instalarse por defecto. Ver `archive/README.md` para la línea de tiempo
+completa de por qué se abandonó ese camino.
 
 ## Estructura
 ```
-.config/niri/       config de niri (keybinds, reglas de ventana, blur global)
-.config/noctalia/   paletas y settings de Noctalia
+.config/niri/        config de niri (keybinds, reglas de ventana, blur global)
+.config/noctalia/    paletas y settings de Noctalia
 .config/gtk-3.0/ .config/gtk-4.0/  tema GTK + transparencia para el blur
-.config/kitty/       opacidad + fuente encima del tema que genera Noctalia
-.config/fastfetch/   logo y config, corre via el saludo de fish
-scripts/             recolor de folders, instalador, instalador de cursor
-refresh-lock/        fix generalizado de refresh-rate del panel interno tras MUX
-asusd-fixes/         fixes puntuales de asusd/rog-control-center
-energy/              fan-curves/PRIME portado de horus-nix (en pausa)
+.config/kitty/        opacidad + fuente encima del tema que genera Noctalia
+.config/fastfetch/    logo y config, corre via el saludo de fish
+scripts/              wizards (GPU/batería/teclado), recolor, instalador
+systemd/user/         recolor-watch + re-aplicar teclado al iniciar sesión
+udev/                 permisos/hooks para batería y teclado, sin sudo ni asusd
+refresh-lock/         fix generalizado de refresh-rate del panel interno tras MUX
+archive/              horus-energy (fan-curves/PRIME) + asusd-fixes — histórico, no se instala
 ```
 
