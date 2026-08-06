@@ -89,7 +89,14 @@ _escribir(){ # $1=nodo $2=valor
     [ -e "$1" ] || { err "No existe el nodo: $1"; return 1; }
     local cur; cur=$(cat "$1" 2>/dev/null)
     [ "$cur" = "$2" ] && return 0
-    echo "$2" | sudo tee "$1" >/dev/null 2>&1
+    if ! echo "$2" | sudo tee "$1" >/dev/null 2>&1; then
+        err "El write a $1 fallo (sudo o firmware lo rechazaron de inmediato)."
+        return 1
+    fi
+    if [ "${3:-}" = "requiere_reboot" ]; then
+        ok "Escrito en $1 -> $2 (gpu_mux_mode no refleja el cambio en current_value hasta reiniciar, es por diseño del driver asus-armoury)."
+        return 0
+    fi
     local post; post=$(cat "$1" 2>/dev/null)
     [ "$post" = "$2" ] || { err "El firmware rechazo el cambio en $1 (sigue en $post)."; return 1; }
     return 0
@@ -99,14 +106,14 @@ _set_modo(){ # $1 = Integrada|Hibrida|Ultimate
     [ -e "$MUX" ] || { err "No existe gpu_mux_mode en este equipo — tu firmware podria no tener MUX fisico."; return 1; }
     case "$1" in
         Ultimate)
-            _escribir "$MUX" 0 || return 1
+            _escribir "$MUX" 0 requiere_reboot || return 1
             ;;
         Hibrida)
-            _escribir "$MUX" 1 || return 1
+            _escribir "$MUX" 1 requiere_reboot || return 1
             _escribir "$DGPU" 0 || return 1
             ;;
         Integrada)
-            _escribir "$MUX" 1 || return 1
+            _escribir "$MUX" 1 requiere_reboot || return 1
             _escribir "$DGPU" 1 || return 1
             ;;
     esac
