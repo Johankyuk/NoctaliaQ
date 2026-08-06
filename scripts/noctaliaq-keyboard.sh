@@ -86,8 +86,12 @@ _set_color(){ # $1 = RRGGBB (sin #)
     interfaz=$(_interfaz)
     case "$interfaz" in
         moderna)
-            echo "1 0 $r $g $b 0" | tee "$RGB_MODERNO" >/dev/null 2>&1 \
-                || { echo "1 0 $r $g $b 0" | sudo tee "$RGB_MODERNO" >/dev/null 2>&1; }
+            if ! echo "1 0 $r $g $b 0" | tee "$RGB_MODERNO" >/dev/null 2>&1; then
+                if ! echo "1 0 $r $g $b 0" | sudo tee "$RGB_MODERNO" >/dev/null 2>&1; then
+                    err "El write a $RGB_MODERNO fallo (permisos o firmware lo rechazo)."
+                    return 1
+                fi
+            fi
             ;;
         legacy)
             printf '%02x' "$r" | tee "$KBBL_DIR/kbbl_red" >/dev/null 2>&1 || printf '%02x' "$r" | sudo tee "$KBBL_DIR/kbbl_red" >/dev/null

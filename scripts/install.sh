@@ -119,7 +119,7 @@ echo "-> Instalando reglas udev (bateria + teclado, pide sudo)..."
 sudo install -m 644 "$TARGET/udev/90-noctaliaq-battery.rules" /etc/udev/rules.d/90-noctaliaq-battery.rules
 sudo install -m 644 "$TARGET/udev/90-noctaliaq-kbd-backlight.rules" /etc/udev/rules.d/90-noctaliaq-kbd-backlight.rules
 sudo udevadm control --reload
-sudo udevadm trigger --subsystem-match=leds --subsystem-match=power_supply
+sudo udevadm trigger --action=add --subsystem-match=leds --subsystem-match=power_supply
 if ! groups "$USER" | grep -qw video; then
     echo "AVISO: tu usuario no esta en el grupo 'video' — el teclado no podra escribirse sin sudo."
     echo "        corre: sudo usermod -aG video \"$USER\"   (y cierra sesion despues)"
