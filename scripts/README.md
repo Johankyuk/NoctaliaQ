@@ -51,6 +51,10 @@ para RGB en este modelo puntual, o necesita un módulo/parámetro extra
 (`asus_wmi.enable_rgb=1` existe en algunos setups) — decime qué muestra
 `--diag` y lo ajustamos.
 
+## Recolor: hooks nativos de Noctalia (preferido) vs. watcher inotify (fallback)
+
+Noctalia trae su propio sistema de hooks (Ajustes -> Hooks, `~/.config/noctalia/settings.json` -> `hooks.colorGeneration` / `hooks.darkModeChange`) — es el disparador correcto para `recolor-all.sh`, no `noctaliaq-recolor-watch.sh`. Motivo por el que `install.sh` no lo configura solo: en el `settings.json` de este repo el bloque `hooks` solo tiene `colorGeneration`/`darkModeChange`/`enabled`/`wallpaperChange`/etc., pero versiones más nuevas de Noctalia agregan bastantes más campos (red, energía) que no están reflejados acá — pisar ese archivo a ciegas desde un script podría perder configuración en vivo que Noctalia ya haya agregado. Hacelo por GUI (dos campos, un switch) y avisame si el timing no cuadra: falta confirmar si el hook dispara antes o después de que Noctalia termine de escribir `noctalia.css` — si `recolor-all.sh` agarra el color viejo, avisame y le agrego un `sleep` de guarda como el que ya tiene el watcher.
+
 ## Convenciones compartidas
 
 - Todo wizard sin argumentos entra en modo interactivo (`_wizard`, ANSI +

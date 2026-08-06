@@ -37,7 +37,7 @@ Esto:
 - **NoctaliaQ: GPU** — `scripts/noctaliaq-gpu.sh` — modo iGPU / Híbrida / Ultimate, sysfs directo, sin fan-curves ni perfiles de rendimiento (fuera de alcance a propósito). Requiere reinicio para aplicar.
 - **NoctaliaQ: Límite de Batería** — `scripts/noctaliaq-battery.sh` — límite de carga configurable (default 80%), reforzado por udev en cada evento de batería, sin asusd de por medio.
 - **NoctaliaQ: Teclado** — `scripts/noctaliaq-keyboard.sh` — brillo + color sólido (sin efectos todavía) siguiendo el accent activo, sysfs directo. `--diag` si tu equipo no responde igual.
-- **Recolor universal (folders + teclado)** — automático en segundo plano al cambiar la paleta (`noctaliaq-recolor-watch.service`), sin terminal visible. `NoctaliaQ: Recolor Folders (manual)` queda como fallback.
+- **Recolor universal (folders + teclado)** — disparado por el hook nativo de Noctalia ("Al cambiar los colores" / "Al cambiar el modo de tema" en Ajustes -> Hooks) apuntando a `scripts/recolor-all.sh`, sin terminal visible ni servicio propio corriendo. `scripts/noctaliaq-recolor-watch.sh` queda como fallback por inotify si tu Noctalia no tiene hooks. `NoctaliaQ: Recolor Folders (manual)` en el lanzador para forzarlo a mano.
 - Cursor Bibata-Modern-Classic (estático, no sigue la paleta — decisión a propósito).
 - Thunar + blur, terminal (kitty) con blur, ASCII + fastfetch minimalista con su propio blur.
 
@@ -55,9 +55,21 @@ Esto reemplaza un enfoque anterior con recolor dinámico (clickgen + build por p
 
 ## Recolor dinámico (folders + teclado)
 
-Papirus (folders de Thunar) y el color del teclado leen el accent activo de Noctalia (`~/.config/gtk-4.0/noctalia.css`) al momento de correr, no un hex fijo. Esto ahora pasa **solo**: `noctaliaq-recolor-watch.service` vigila ese archivo con `inotifywait` y llama a `recolor-all.sh` cada vez que cambia — no hace falta correr nada a mano, y no abre ninguna terminal (a diferencia del launcher manual anterior, que se veía raro al abrir kitty solo para eso).
+Papirus (folders de Thunar) y el color del teclado leen el accent activo de Noctalia (`~/.config/gtk-4.0/noctalia.css`) al momento de correr, no un hex fijo. El disparador es el **sistema de hooks nativo de Noctalia** (Ajustes -> Hooks): activá el switch de hooks y apuntá "Al cambiar los colores" y "Al cambiar el modo de tema" a:
 
-Si por lo que sea el watcher no está corriendo (`systemctl --user status noctaliaq-recolor-watch`), podés forzarlo:
+```
+~/NoctaliaQ/scripts/recolor-all.sh
+```
+
+(mismo script en los dos campos — es idempotente). `install.sh` no lo hace por vos porque distintas versiones de Noctalia agregan más campos de hooks (red, energía) que no están en el `settings.json` versionado en este repo — mejor pedirlo por GUI que arriesgarse a pisar configuración en vivo con un script a ciegas.
+
+Si preferís no depender de los hooks (o tu versión de Noctalia todavía no los tiene), `scripts/noctaliaq-recolor-watch.sh` + `systemd/user/noctaliaq-recolor-watch.service` siguen en el repo como fallback por `inotifywait`, sin habilitarse por defecto:
+
+```bash
+systemctl --user enable --now noctaliaq-recolor-watch.service
+```
+
+Para forzarlo a mano en cualquier momento:
 
 ```bash
 ~/NoctaliaQ/scripts/recolor-all.sh        # folders + teclado

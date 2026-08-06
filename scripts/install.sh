@@ -128,14 +128,20 @@ fi
 echo "-> Fijando limite de bateria por defecto (80%, pide sudo la primera vez)..."
 "$TARGET/scripts/noctaliaq-battery.sh" set 80 || echo "AVISO: no pude fijar el limite — corre '$TARGET/scripts/noctaliaq-battery.sh --actual' para diagnosticar."
 
-echo "-> Habilitando servicios de usuario (recolor automatico + teclado al iniciar sesion)..."
+echo "-> Habilitando servicio de usuario (re-aplicar teclado al iniciar sesión)..."
 mkdir -p "$HOME/.config/systemd/user"
 for u in "$TARGET"/systemd/user/*.service; do
     ln -sfn "$u" "$HOME/.config/systemd/user/$(basename "$u")"
 done
 systemctl --user daemon-reload
-systemctl --user enable --now noctaliaq-keyboard-boot.service noctaliaq-recolor-watch.service 2>&1 \
-    || echo "AVISO: no pude habilitar los servicios --user (¿estas dentro de una sesion grafica activa?)."
+systemctl --user enable --now noctaliaq-keyboard-boot.service 2>&1 \
+    || echo "AVISO: no pude habilitar el servicio --user (¿estas dentro de una sesion grafica activa?)."
+# noctaliaq-recolor-watch.service YA NO se habilita por defecto: Noctalia tiene
+# su propio sistema de hooks (Ajustes -> Hooks) y "Al cambiar los colores" es
+# el disparador correcto, sin necesidad de vigilar archivos con inotify. Ver
+# instrucciones al final de este script. El watcher sigue disponible como
+# fallback manual si tu version de Noctalia no tiene hooks todavia:
+#   systemctl --user enable --now noctaliaq-recolor-watch.service
 
 echo "-> Corriendo el primer recolor (folders + teclado, con la paleta actual)..."
 "$TARGET/scripts/recolor-all.sh" || echo "AVISO: el recolor fallo — revisa que ~/.config/gtk-4.0/noctalia.css exista (Noctalia debe haber corrido al menos una vez)."
@@ -143,6 +149,17 @@ echo "-> Corriendo el primer recolor (folders + teclado, con la paleta actual)..
 
 
 echo "== listo =="
+echo ""
+echo "PASO MANUAL PENDIENTE (Noctalia -> Ajustes -> Hooks) para que el recolor"
+echo "sea automatico usando el sistema de hooks NATIVO de Noctalia, en vez del"
+echo "watcher por inotify:"
+echo "  1. Activa el switch de 'habilitar hooks' (arriba del todo en esa pagina)."
+echo "  2. 'Al cambiar los colores'      -> $TARGET/scripts/recolor-all.sh"
+echo "  3. 'Al cambiar el modo de tema'  -> $TARGET/scripts/recolor-all.sh"
+echo "(mismo script en ambos campos, es idempotente). No lo hace este instalador"
+echo "porque tu version de Noctalia agrego mas campos de hooks (red/energia) que"
+echo "no estaban en el settings.json de este repo -- mejor no tocar ese archivo"
+echo "a ciegas y perder configuracion en vivo."
 echo ""
 echo "Wizards disponibles desde el lanzador de Noctalia (o directo en terminal):"
 echo "  $TARGET/scripts/noctaliaq-gpu.sh"
