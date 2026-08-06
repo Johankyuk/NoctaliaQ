@@ -27,6 +27,17 @@ volver atrás.
    ningún daemon de por medio. Fan-curves/perfiles de rendimiento no se
    repusieron: quedan fuera de alcance a propósito.
 
+## Punto 5 (desinstalación física de asusd/asusctl/rog-control-center): en pausa
+
+**2026-08-06:** archivado por problemas técnicos reales — daban más
+problema que ayuda (arranques fallidos, fixes puntuales que había que
+re-aplicar). El servicio propio (`scripts/noctaliaq-gpu.sh`,
+`noctaliaq-battery.sh`, `noctaliaq-keyboard.sh`, todo por sysfs directo)
+es más que suficiente y ya cubre todo lo que se usaba en la práctica.
+Están inertes, nadie los invoca. Desinstalarlos del sistema (pacman -R)
+queda abierto sin urgencia — los comandos siguen impresos al final de
+`install.sh` por si se decide más adelante.
+
 ## Dónde quedó cada cosa
 
 | Módulo archivado          | Reemplazado por (activo, en `scripts/`)   |
