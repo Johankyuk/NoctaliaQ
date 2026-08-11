@@ -65,7 +65,7 @@ git -C "$TARGET" remote set-url origin "$REPO_SSH" 2>/dev/null || true
 
 ts=$(date +%s)
 
-for d in niri noctalia gtk-3.0 gtk-4.0 fastfetch; do
+for d in niri noctalia gtk-3.0 gtk-4.0 fastfetch xdg-desktop-portal; do
 
     live="$HOME/.config/$d"
 
@@ -114,6 +114,9 @@ echo "-> Instalando cursor Bibata-Modern-Classic (estatico, una sola vez)..."
 "$TARGET/scripts/install-cursor.sh" || echo "AVISO: no se pudo instalar el cursor — revisa conexion a github.com."
 
 
+
+echo "-> Instalando script de bateria en ruta persistente (udev no puede depender de /home montado)..."
+sudo install -m 755 "$TARGET/scripts/noctaliaq-battery.sh" /usr/local/bin/noctaliaq-battery
 
 echo "-> Instalando reglas udev (bateria + teclado, pide sudo)..."
 sudo install -m 644 "$TARGET/udev/90-noctaliaq-battery.rules" /etc/udev/rules.d/90-noctaliaq-battery.rules

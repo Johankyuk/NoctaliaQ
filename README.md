@@ -43,6 +43,23 @@ Esto:
 
 Todos los wizards son ejecutables directo en terminal (con menú interactivo) o desde el lanzador de Noctalia (`NoctaliaQ: <feature>`), y también aceptan subcomandos no interactivos — corré cualquiera con `--help`.
 
+## Pendiente: greetd/noctalia-greeter
+
+Por ahora la instalacion asume **SDDM** como display manager (default de
+CachyOS). El setup de `greetd` + `noctalia-greeter` (compositor propio,
+sincroniza wallpaper/paleta con el login) requiere 3 fixes que todavia no
+estan scripteados en este repo:
+
+- drop-in `ExecStartPre=/usr/bin/sleep 1` en `greetd.service` (race con
+  Plymouth por el DRM master del panel interno)
+- `XKB_DEFAULT_LAYOUT=latam` (o el layout que corresponda) inyectado en el
+  `command=` de `/etc/greetd/config.toml` -- el compositor standalone del
+  greeter no hereda el layout de `systemd-localed`
+- log persistente a `/var/log/noctalia-greeter/` via `NOCTALIA_GREETER_LOG`
+
+Se agregan cuando se scriptee el setup completo de greetd. Mientras tanto,
+quedate en SDDM.
+
 ## No es un color fijo (con una excepción a propósito: el cursor)
 
 Folders (Papirus) y el logo de fastfetch siguen la paleta que Noctalia genera a partir del wallpaper activo — no hay un hex fijo en ningún lado. El cursor es la única pieza que **no** sigue el wallpaper: es Bibata-Modern-Classic (negro) fijo, a propósito, para no tener que regenerarlo cada vez que cambia el fondo.
